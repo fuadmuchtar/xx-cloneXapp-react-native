@@ -3,9 +3,9 @@ const PostsModel = require("../models/PostsModel")
 const typeDefs = `#graphql
     type Posts {
         _id: ID
-        content: String
+        content: String!
         imgUrl: String
-        authorId: ID
+        authorId: ID!
     }
 
     type Query {

@@ -5,6 +5,10 @@ class UserModel {
         return database.collection("users")
     }
 
+    static async create(newUser) {
+        return await this.collection().insertOne(newUser)
+    }
+
     static async getAll() {
         return await this.collection().find().toArray()
     }
