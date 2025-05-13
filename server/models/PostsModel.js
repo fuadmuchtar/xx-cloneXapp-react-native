@@ -8,6 +8,10 @@ class PostsModel {
     static async getAll() {
         return await this.collection().find().toArray()
     }
+
+    static async likePost(_id) { // not fixed yet
+        const post = await this.collection().findOne({ _id })
+    }
 }
 
 module.exports = PostsModel

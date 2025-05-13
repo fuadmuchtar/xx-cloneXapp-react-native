@@ -5,6 +5,8 @@ const typeDefs = `#graphql
         _id: ID
         followingId: ID
         followerId: ID
+        # createdAt:
+        # updatedAt:
     }
 
     type Query {

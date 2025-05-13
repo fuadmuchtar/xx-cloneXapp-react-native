@@ -5,12 +5,28 @@ class UserModel {
         return database.collection("users")
     }
 
-    static async create(newUser) {
+    static async register(newUser) {
         return await this.collection().insertOne(newUser)
     }
 
+    // static login
+
     static async getAll() {
         return await this.collection().find().toArray()
+    }
+
+    static async findUser(user, username) {
+        const findUser = await this.collection().find({
+            user: {
+                $regex: user,
+                $options: "i"
+            },
+            username: {
+                $regex: username,
+                $options: "i"
+            }
+        }).toArray()
+        return findUser
     }
 }
 

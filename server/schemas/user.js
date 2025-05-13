@@ -10,11 +10,13 @@ const typeDefs = `#graphql
     }
 
     type Query {
-        users: [User]
+        users: [User],
+        usersByNameUsername(user: String, username: String): [User]
     }
 
     type Mutation {
         register(name: String, username: String, email: String, password: String): String
+        # login
     }
 `;
 
@@ -23,16 +25,22 @@ const resolvers = {
         users: async () => {
             const users = await UserModel.getAll()
             return users
+        },
+        usersByNameUsername: async (_, { name, username }) => {
+            const findUser = await UserModel.findUser(name, username)
+            return findUser
         }
     },
     Mutation: {
         register: async (_, { name, username, email, password }) => {
             let newUser = { name, username, email, password }
 
-            await UserModel.create(newUser)
+            await UserModel.register(newUser)
 
             return "Success"
-        }
+        },
+        // login: async(_, {username, password}) => {
+        // }
     }
 }
 
