@@ -1,9 +1,12 @@
 const { ApolloServer } = require("@apollo/server")
 const { startStandaloneServer } = require("@apollo/server/standalone")
+const { typeDefs: userTypeDefs, resolvers: userResolvers } = require("./schemas/user")
+const { typeDefs: postsTypeDefs, resolvers: postsResolvers } = require("./schemas/posts")
+const { typeDefs: followTypeDefs, resolvers: followResolvers } = require("./schemas/follow")
 
 const server = new ApolloServer({
-    typeDefs,
-    resolvers
+    typeDefs: [userTypeDefs, postsTypeDefs, followTypeDefs],
+    resolvers: [userResolvers, postsResolvers, followResolvers]
 })
 
 startStandaloneServer(server, {
