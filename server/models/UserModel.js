@@ -48,6 +48,17 @@ class UserModel {
     static async getAll() {
         return await this.collection().find().toArray()
     }
+
+    static async findUsers(input) {
+        const users = await this.collection().find({
+            $or: [
+                { name: { $regex: String(input), $options: "i" } },
+                { username: { $regex: String(input), $options: "i" } }
+            ]
+        }).toArray()
+
+        return users
+    }
 }
 
 module.exports = UserModel

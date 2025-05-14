@@ -1,3 +1,4 @@
+const redis = require("../config/redisConnection");
 const PostsModel = require("../models/PostsModel")
 
 const typeDefs = `#graphql
@@ -38,17 +39,24 @@ const typeDefs = `#graphql
 
 const resolvers = {
     Query: {
-        posts: async () => {
+        posts: async (_, __, { auth }) => {
+            await auth()
+
+            const postsRedis = JSON.parse(await redis.get("posts"))
+            if (postsRedis) return postsRedis
+
             const posts = await PostsModel.getAll()
+            redis.set("posts", JSON.stringify(posts))
             return posts
         }
     },
     Mutation: {
         addPost: async (_, { content, tags, imgUrl }, { auth }) => {
             const newPost = { content, tags, imgUrl }
-
+                                                                                                                                                                                                                                                                                                                     
             const {_id: id} = await auth()
             const post = await PostsModel.addPost(newPost, id)
+            redis.del("posts")
             return post
         },
         likePost: async (_, { _id }) => {
