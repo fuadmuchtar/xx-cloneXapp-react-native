@@ -28,8 +28,36 @@ class PostsModel {
 
         return "Create post Success"
     }
-    static async likePost(_id) { // not fixed yet
-        const post = await this.collection().findOne({ _id })
+
+    static async likePost(id, username) {
+        const post = await this.collection().findOne({_id: new ObjectId(String(id)) })
+        if (!post) {
+            throw new Error("Post not found")
+        }
+
+        await this.collection().updateOne(
+            { _id: new ObjectId(String(id)) },
+            { $push: { likes: { username: username, createdAt: new Date(), updatedAt: new Date() } } }
+        )
+        return "Like post Success"
+    }
+
+    static async commentPost(id, content, username) {
+        if (!content) {
+            throw new Error("Comment is required")
+        }
+
+        const post = await this.collection().findOne({_id: new ObjectId(String(id)) })
+        if (!post) {
+            throw new Error("Post not found")
+        }
+
+        await this.collection().updateOne(
+            { _id: new ObjectId(String(id))},
+            { $push: { comments: { content: content, username: username, createdAt: new Date(), updatedAt: new Date() }}}
+        )
+
+        return "Comment post Success"
     }
 }
 

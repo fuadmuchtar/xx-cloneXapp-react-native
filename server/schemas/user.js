@@ -2,6 +2,8 @@ const { comparePassword } = require("../helpers/bcrypt");
 const { generateAccessToken } = require("../helpers/jwt");
 const UserModel = require("../models/UserModel")
 
+// Query - Get User by Id: untuk menampilkan profile user
+
 const typeDefs = `#graphql
     type User {
         _id: ID
