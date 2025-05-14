@@ -9,21 +9,21 @@ const typeDefs = `#graphql
         authorId: ID!
         comments: [Comments]
         likes: [Likes]
-        # createdAt: 
-        # updatedAt:
+        createdAt: String 
+        updatedAt: String
     }
 
     type Comments {
         content: String!
         username: String!
-        # createdAt:
-        # updatedAt:
+        createdAt: String
+        updatedAt: String
     }
 
     type Likes {
         username: String!
-        # createdAt:
-        # updatedAt:
+        createdAt: String
+        updatedAt: String
     }
 
     type Query {

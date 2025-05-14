@@ -1,4 +1,6 @@
 const { database } = require("../config/mongodb")
+const { hashPassword } = require("../helpers/bcrypt");
+
 
 class UserModel {
     static collection() {
@@ -6,27 +8,39 @@ class UserModel {
     }
 
     static async register(newUser) {
-        return await this.collection().insertOne(newUser)
+        const { username, email, password } = newUser
+
+        if (!username || !email || !password) {
+            throw new Error("All fields are required")
+        }
+        if (password.length < 5) {
+            throw new Error("Password must be at least 6 characters")
+        }
+
+        let user = await this.collection().findOne({ username })
+        if (user) {
+            throw new Error("Username already exists")
+        }
+
+        user = await this.collection().findOne({ email })
+        if (user) {
+            throw new Error("Email already exists")
+        }
+
+        const hashedPassword = hashPassword(password)
+        let addedUser = {...newUser, password: hashedPassword}
+
+        await this.collection().insertOne(addedUser)
+
+        return "User registered successfully"
     }
 
-    // static login
+    static async findByEmail(email) {
+        return await this.collection().findOne({ email })
+    }
 
     static async getAll() {
         return await this.collection().find().toArray()
-    }
-
-    static async findUser(user, username) {
-        const findUser = await this.collection().find({
-            user: {
-                $regex: user,
-                $options: "i"
-            },
-            username: {
-                $regex: username,
-                $options: "i"
-            }
-        }).toArray()
-        return findUser
     }
 }
 

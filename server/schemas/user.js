@@ -1,3 +1,5 @@
+const { comparePassword } = require("../helpers/bcrypt");
+const { generateAccessToken } = require("../helpers/jwt");
 const UserModel = require("../models/UserModel")
 
 const typeDefs = `#graphql
@@ -9,14 +11,17 @@ const typeDefs = `#graphql
         password: String!
     }
 
+    type LoginResponse {
+        accessToken: String
+    }
+
     type Query {
-        users: [User],
-        usersByNameUsername(user: String, username: String): [User]
+        users: [User]
     }
 
     type Mutation {
         register(name: String, username: String, email: String, password: String): String
-        # login
+        login(email: String, password: String): LoginResponse
     }
 `;
 
@@ -25,22 +30,29 @@ const resolvers = {
         users: async () => {
             const users = await UserModel.getAll()
             return users
-        },
-        usersByNameUsername: async (_, { name, username }) => {
-            const findUser = await UserModel.findUser(name, username)
-            return findUser
         }
     },
     Mutation: {
         register: async (_, { name, username, email, password }) => {
-            let newUser = { name, username, email, password }
+            const newUser = { name, username, email, password }
 
-            await UserModel.register(newUser)
+            const user = await UserModel.register(newUser)
 
-            return "Success"
+            return user
         },
-        // login: async(_, {username, password}) => {
-        // }
+        login: async(_, {email, password}) => {
+            if (!email || !password) throw new Error("Email and password are required")
+
+            const user = await UserModel.findByEmail(email)
+            if (!user) throw new Error("User/password is invalid!")
+            
+            const isValid = comparePassword(password, user.password)
+            if (!isValid) throw new Error("User/password is invalid")
+            
+            const accessToken = generateAccessToken({_id: user._id})
+             
+            return { accessToken }
+        }
     }
 }
 
