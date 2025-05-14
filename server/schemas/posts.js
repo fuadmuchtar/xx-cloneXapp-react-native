@@ -31,6 +31,7 @@ const typeDefs = `#graphql
     }
 
     type Mutation {
+        addPost(content: String!, tags: [String], imgUrl: String): String
         likePost(_id: ID!): String
     }
 `;
@@ -43,6 +44,13 @@ const resolvers = {
         }
     },
     Mutation: {
+        addPost: async (_, { content, tags, imgUrl }, { auth }) => {
+            const newPost = { content, tags, imgUrl }
+
+            const {_id: id} = await auth()
+            const post = await PostsModel.addPost(newPost, id)
+            return post
+        },
         likePost: async (_, { _id }) => {
             const post = await PostsModel.likePost(_id)
             return post

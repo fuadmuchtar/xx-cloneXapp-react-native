@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const { database } = require("../config/mongodb")
 const { hashPassword } = require("../helpers/bcrypt");
 
@@ -37,6 +38,11 @@ class UserModel {
 
     static async findByEmail(email) {
         return await this.collection().findOne({ email })
+    }
+
+    static async findById(id) {
+        const user = await this.collection().findOne({_id: new ObjectId(String(id))})
+        return user
     }
 
     static async getAll() {
