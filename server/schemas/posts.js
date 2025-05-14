@@ -1,8 +1,6 @@
 const redis = require("../config/redisConnection");
 const PostsModel = require("../models/PostsModel")
 
-// Query - Get Posts: mengambil daftar post berdasarkan yang terbaru
-
 const typeDefs = `#graphql
     type Posts {
         _id: ID
@@ -31,7 +29,7 @@ const typeDefs = `#graphql
 
     type Query {
         posts: [Posts]
-
+        postById(_id: ID!): Posts
     }
 
     type Mutation {
@@ -45,32 +43,39 @@ const resolvers = {
     Query: {                                                                                                                                                                                                                                                                                                                                                    
         posts: async (_, __, { auth }) => {
             await auth()
-
+            
             const postsRedis = JSON.parse(await redis.get("posts"))
             if (postsRedis) return postsRedis
 
             const posts = await PostsModel.getAll()
             redis.set("posts", JSON.stringify(posts))
             return posts
+        },
+        postById: async (_, { _id }, { auth }) => {
+            await auth()
+            const post = await PostsModel.getPostById(_id)
+            return post
         }
     },
     Mutation: {
         addPost: async (_, { content, tags, imgUrl }, { auth }) => {
             const newPost = { content, tags, imgUrl }
-                                                                                                                                                                                                                                                                                                                     
             const {_id: id} = await auth()
+
             const post = await PostsModel.addPost(newPost, id)
             redis.del("posts")
             return post
         },
         likePost: async (_, { _id }, { auth }) => {
             let user = await auth()
+
             const post = await PostsModel.likePost(_id, user.username)
             redis.del("posts")
             return post
         },
         commentPost: async (_, { _id, content }, { auth }) => {
             let user = await auth()
+
             const post = await PostsModel.commentPost(_id, content, user.username)
             redis.del("posts")
             return post
@@ -79,7 +84,6 @@ const resolvers = {
 }
 
 // Mutation - Follow User: untuk kebutuhan memfollow user
-// Query - Get Post by Id: mengambil post berdasarkan id beserta data komentar dan likes
 // Mutation - Comment Post: untuk menambahkan komentar pada post
 // Redis - Invalidate cache pada Add Post (Mutation)
 // Lookup - Mengambil data user ketika mengambil data Post

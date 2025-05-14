@@ -59,6 +59,14 @@ class PostsModel {
 
         return "Comment post Success"
     }
+
+    static async getPostById(id) {
+        const post = await this.collection().findOne({ _id: new ObjectId(String(id)) })
+        if (!post) {
+            throw new Error("Post not found")
+        }
+        return post
+    }
 }
 
 module.exports = PostsModel
