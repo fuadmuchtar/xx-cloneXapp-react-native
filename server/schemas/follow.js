@@ -12,6 +12,11 @@ const typeDefs = `#graphql
     type Query {
         follow: [Follow]
     }
+
+    type Mutation {
+        follow(followingId: ID!): String
+        unfollow(followingId: ID!): String
+    }
 `;
 
 const resolvers = {
@@ -19,6 +24,22 @@ const resolvers = {
         follow: async () => {
             const follow = await FollowModel.getAll()
             return follow
+        }
+    },
+    Mutation: {
+        follow: async (_, { followingId }, { auth }) => {
+            let user = await auth()
+
+            let follow = await FollowModel.follow(followingId, user._id)
+
+            return follow
+        },
+        unfollow: async (_, { followingId }, { auth }) => {
+            let user = await auth()
+
+            let unfollow = await FollowModel.unfollow(followingId, user._id)
+            
+            return unfollow
         }
     }
 }

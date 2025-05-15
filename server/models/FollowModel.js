@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb")
 const { database } = require("../config/mongodb")
 
 class FollowModel {
@@ -5,8 +6,22 @@ class FollowModel {
         return database.collection("follow")
     }
 
-    static async getAll() {
-        return await this.collection().find().toArray()
+    static async follow(followingId, userId) {
+        const follow = {
+            followingId: new ObjectId(String(followingId)),
+            followerId: new ObjectId(String(userId)),
+            createdAt: new Date(),
+            updatedAt: new Date()
+        }
+
+        await this.collection().insertOne(follow)
+
+        return "Follow Success"
+    }
+
+    static async unfollow(followingId, userId) {
+        await this.collection().deleteOne({ followingId: new ObjectId(String(followingId)), followerId: new ObjectId(String(userId)) });
+        return "Unfollow Success"
     }
 }
 

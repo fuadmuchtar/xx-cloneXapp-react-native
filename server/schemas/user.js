@@ -20,7 +20,7 @@ const typeDefs = `#graphql
     type Query {
         users: [User]
         searchUsers(input: String): [User]
-        # userById(id: ID!): User
+        userById(id: ID!): User
     }
 
     type Mutation {
@@ -41,6 +41,11 @@ const resolvers = {
             await auth()
             const users = await UserModel.findUsers(input)
             return users
+        },
+        userById: async (_, { id }, { auth }) => {
+            await auth()
+            const user = await UserModel.findById(id)
+            return user
         }
     },
     Mutation: {
