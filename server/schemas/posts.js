@@ -40,15 +40,15 @@ const typeDefs = `#graphql
 `;
 
 const resolvers = {
-    Query: {                                                                                                                                                                                                                                                                                                                                                    
+    Query: {
         posts: async (_, __, { auth }) => {
             await auth()
-            
-            const postsRedis = JSON.parse(await redis.get("posts"))
-            if (postsRedis) return postsRedis
+
+            // const postsRedis = JSON.parse(await redis.get("posts"))
+            // if (postsRedis) return postsRedis
 
             const posts = await PostsModel.getAll()
-            redis.set("posts", JSON.stringify(posts))
+            // redis.set("posts", JSON.stringify(posts))
             return posts
         },
         postById: async (_, { _id }, { auth }) => {
@@ -60,7 +60,7 @@ const resolvers = {
     Mutation: {
         addPost: async (_, { content, tags, imgUrl }, { auth }) => {
             const newPost = { content, tags, imgUrl }
-            const {_id: id} = await auth()
+            const { _id: id } = await auth()
 
             const post = await PostsModel.addPost(newPost, id)
             redis.del("posts")

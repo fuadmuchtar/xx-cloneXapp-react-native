@@ -7,7 +7,13 @@ class PostsModel {
     }
 
     static async getAll() {
-        return await this.collection().find().toArray()
+        const data = await this.collection().aggregate(
+            [
+                { $sort: { updatedAt: -1 } }
+            ]
+        ).toArray()
+
+        return data
     }
 
     static async addPost(newPost, id) {
@@ -30,7 +36,7 @@ class PostsModel {
     }
 
     static async likePost(id, username) {
-        const post = await this.collection().findOne({_id: new ObjectId(String(id)) })
+        const post = await this.collection().findOne({ _id: new ObjectId(String(id)) })
         if (!post) {
             throw new Error("Post not found")
         }
@@ -47,14 +53,14 @@ class PostsModel {
             throw new Error("Comment is required")
         }
 
-        const post = await this.collection().findOne({_id: new ObjectId(String(id)) })
+        const post = await this.collection().findOne({ _id: new ObjectId(String(id)) })
         if (!post) {
             throw new Error("Post not found")
         }
 
         await this.collection().updateOne(
-            { _id: new ObjectId(String(id))},
-            { $push: { comments: { content: content, username: username, createdAt: new Date(), updatedAt: new Date() }}}
+            { _id: new ObjectId(String(id)) },
+            { $push: { comments: { content: content, username: username, createdAt: new Date(), updatedAt: new Date() } } }
         )
 
         return "Comment post Success"

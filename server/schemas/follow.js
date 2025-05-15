@@ -15,7 +15,6 @@ const typeDefs = `#graphql
 
     type Mutation {
         follow(followingId: ID!): String
-        unfollow(followingId: ID!): String
     }
 `;
 
@@ -33,13 +32,6 @@ const resolvers = {
             let follow = await FollowModel.follow(followingId, user._id)
 
             return follow
-        },
-        unfollow: async (_, { followingId }, { auth }) => {
-            let user = await auth()
-
-            let unfollow = await FollowModel.unfollow(followingId, user._id)
-            
-            return unfollow
         }
     }
 }

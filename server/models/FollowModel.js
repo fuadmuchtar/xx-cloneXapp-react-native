@@ -7,6 +7,14 @@ class FollowModel {
     }
 
     static async follow(followingId, userId) {
+        if (followingId === userId) throw new Error("You can't follow yourself")
+
+        const data = await this.collection().findOne({ followingId: new ObjectId(String(followingId)), followerId: new ObjectId(String(userId)) })
+        if (data) {
+            await this.collection().deleteOne({ _id: data._id })
+            return "Unfollow Success"
+        }
+
         const follow = {
             followingId: new ObjectId(String(followingId)),
             followerId: new ObjectId(String(userId)),
@@ -17,11 +25,6 @@ class FollowModel {
         await this.collection().insertOne(follow)
 
         return "Follow Success"
-    }
-
-    static async unfollow(followingId, userId) {
-        await this.collection().deleteOne({ followingId: new ObjectId(String(followingId)), followerId: new ObjectId(String(userId)) });
-        return "Unfollow Success"
     }
 }
 
