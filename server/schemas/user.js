@@ -12,7 +12,7 @@ const typeDefs = `#graphql
         email: String!
         password: String!
         following: [followingDetail]
-        # followers: [followingDetail]
+        followers: [followingDetail]
     }
 
     type LoginResponse {

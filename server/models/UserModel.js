@@ -62,6 +62,20 @@ class UserModel {
                         'foreignField': '_id',
                         'as': 'following'
                     }
+                }, {
+                    '$lookup': {
+                        'from': 'follow',
+                        'localField': '_id',
+                        'foreignField': 'followingId',
+                        'as': 'followerRaw'
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'followerRaw.followerId',
+                        'foreignField': '_id',
+                        'as': 'followers'
+                    }
                 }
             ]).toArray()
 
