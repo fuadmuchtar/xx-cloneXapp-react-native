@@ -12,6 +12,13 @@ const typeDefs = `#graphql
         likes: [Likes]
         createdAt: String 
         updatedAt: String
+        commentsUser: [userDetail]
+        likesUser: [userDetail]
+        authorDetail: userDetail
+    }
+
+    type userDetail {
+        name: String
     }
 
     type Comments {
@@ -44,11 +51,11 @@ const resolvers = {
         posts: async (_, __, { auth }) => {
             await auth()
 
-            // const postsRedis = JSON.parse(await redis.get("posts"))
-            // if (postsRedis) return postsRedis
+            const postsRedis = JSON.parse(await redis.get("posts"))
+            if (postsRedis) return postsRedis
 
             const posts = await PostsModel.getAll()
-            // redis.set("posts", JSON.stringify(posts))
+            redis.set("posts", JSON.stringify(posts))
             return posts
         },
         postById: async (_, { _id }, { auth }) => {
@@ -83,9 +90,6 @@ const resolvers = {
     }
 }
 
-// Mutation - Follow User: untuk kebutuhan memfollow user
-// Mutation - Comment Post: untuk menambahkan komentar pada post
-// Redis - Invalidate cache pada Add Post (Mutation)
 // Lookup - Mengambil data user ketika mengambil data Post
 // Lookup - Mengambil data following dan followers ketika mengambil data Profile User
 

@@ -67,11 +67,44 @@ class PostsModel {
     }
 
     static async getPostById(id) {
-        const post = await this.collection().findOne({ _id: new ObjectId(String(id)) })
+        const post = await this.collection()
+            .aggregate([
+                {
+                    '$match': {
+                        '_id': new ObjectId(String(id))
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'comments.username',
+                        'foreignField': 'username',
+                        'as': 'commentsUser'
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'likes.username',
+                        'foreignField': 'username',
+                        'as': 'likesUser'
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'authorId',
+                        'foreignField': '_id',
+                        'as': 'authorDetail'
+                    }
+                }, {
+                    '$unwind': {
+                        'path': '$authorDetail',
+                        'preserveNullAndEmptyArrays': false
+                    }
+                }
+            ]).toArray()
         if (!post) {
             throw new Error("Post not found")
         }
-        return post
+        return post[0]
     }
 }
 
