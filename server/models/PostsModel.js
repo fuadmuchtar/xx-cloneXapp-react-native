@@ -40,7 +40,14 @@ class PostsModel {
         if (!post) {
             throw new Error("Post not found")
         }
-
+        const isLiked = post.likes.find((like) => like.username === username)
+        if (isLiked) {
+            await this.collection().updateOne(
+                { _id: new ObjectId(String(id)) },
+                { $pull: { likes: { username: username } } }
+            )
+            return "Unlike post Success"
+        }
         await this.collection().updateOne(
             { _id: new ObjectId(String(id)) },
             { $push: { likes: { username: username, createdAt: new Date(), updatedAt: new Date() } } }
