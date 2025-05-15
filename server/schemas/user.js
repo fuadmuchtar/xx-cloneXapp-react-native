@@ -11,10 +11,18 @@ const typeDefs = `#graphql
         username: String!
         email: String!
         password: String!
+        following: [followingDetail]
+        # followers: [followingDetail]
     }
 
     type LoginResponse {
         accessToken: String
+    }
+
+    type followingDetail {
+        _id: String
+        name: String
+        username: String!
     }
 
     type Query {

@@ -29,7 +29,7 @@ class UserModel {
         }
 
         const hashedPassword = hashPassword(password)
-        let addedUser = {...newUser, password: hashedPassword}
+        let addedUser = { ...newUser, password: hashedPassword }
 
         await this.collection().insertOne(addedUser)
 
@@ -41,8 +41,31 @@ class UserModel {
     }
 
     static async findById(id) {
-        const user = await this.collection().findOne({_id: new ObjectId(String(id))})
-        return user
+        // const user = await this.collection().findOne({_id: new ObjectId(String(id))})
+        const user = await this.collection()
+            .aggregate([
+                {
+                    '$match': {
+                        '_id': new ObjectId(String(id))
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'follow',
+                        'localField': '_id',
+                        'foreignField': 'followerId',
+                        'as': 'followingRaw'
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'followingRaw.followingId',
+                        'foreignField': '_id',
+                        'as': 'following'
+                    }
+                }
+            ]).toArray()
+
+        return user[0]
     }
 
     static async getAll() {
