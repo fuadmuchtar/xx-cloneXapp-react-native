@@ -9,7 +9,28 @@ class PostsModel {
     static async getAll() {
         const data = await this.collection().aggregate(
             [
-                { $sort: { updatedAt: -1 } }
+                {
+                    '$sort': {
+                        'updatedAt': -1
+                    }
+                }, {
+                    '$lookup': {
+                        'from': 'users',
+                        'localField': 'authorId',
+                        'foreignField': '_id',
+                        'as': 'authorDetail'
+                    }
+                }, {
+                    '$unwind': {
+                        'path': '$authorDetail',
+                        'preserveNullAndEmptyArrays': false
+                    }
+                }, {
+                    '$project': {
+                        'authorDetail.email': 0,
+                        'authorDetail.password': 0
+                    }
+                }
             ]
         ).toArray()
 
