@@ -34,6 +34,7 @@ const typeDefs = `#graphql
     type Mutation {
         register(name: String, username: String, email: String, password: String): String
         login(email: String, password: String): LoginResponse
+        checkUser(input: String): Boolean
     }
 `;
 
@@ -41,7 +42,7 @@ const resolvers = {
     Query: {
         users: async (_, __, { auth }) => {
             await auth()
-            
+
             const users = await UserModel.getAll()
             return users
         },
@@ -64,18 +65,25 @@ const resolvers = {
 
             return user
         },
-        login: async(_, {email, password}) => {
+        login: async (_, { email, password }) => {
             if (!email || !password) throw new Error("Email and password are required")
 
             const user = await UserModel.findByEmail(email)
             if (!user) throw new Error("User/password is invalid!")
-            
+
             const isValid = comparePassword(password, user.password)
             if (!isValid) throw new Error("User/password is invalid")
-            
-            const accessToken = generateAccessToken({_id: user._id})
-             
+
+            const accessToken = generateAccessToken({ _id: user._id })
+
             return { accessToken }
+        },
+        checkUser: async (_, { input }) => {
+            if (!input) throw new Error("Email or username are required")
+
+            const user = await UserModel.findOne(input)
+
+            return user
         }
     }
 }

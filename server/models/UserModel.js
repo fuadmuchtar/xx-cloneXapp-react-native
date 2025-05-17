@@ -96,6 +96,23 @@ class UserModel {
 
         return users
     }
+
+    static async findOne(input) {
+        const user = await this.collection().findOne(
+            {
+                $or: [
+                    { username: input },
+                    { email: input }
+                ]
+            }
+        )
+
+        if (user) {
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 module.exports = UserModel
