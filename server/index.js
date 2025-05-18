@@ -1,4 +1,6 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config();
+}
 const { ApolloServer } = require("@apollo/server")
 const { startStandaloneServer } = require("@apollo/server/standalone")
 const { typeDefs: userTypeDefs, resolvers: userResolvers } = require("./schemas/user")
@@ -10,7 +12,8 @@ const UserModel = require('./models/UserModel');
 const server = new ApolloServer({
     typeDefs: [userTypeDefs, postsTypeDefs, followTypeDefs],
     resolvers: [userResolvers, postsResolvers, followResolvers],
-    introspection: true,
+    introspection: true
+
 })
 
 startStandaloneServer(server, {
