@@ -5,13 +5,14 @@ import TabNav from "./TabNav"
 import TweetScreen from "../screens/TweetScreen"
 import ProfileScreen from "../screens/ProfileScreen"
 import TweetDetailScreen from "../screens/TweetDetailScreen"
+import RegisterScreen from "../screens/RegisterScreen"
 
 const Stack = createStackNavigator()
 export default function StackNav() {
-    const { isSignedIn } = false // Replace with your authentication logic
+    const { isSignedIn } = false
     return (
         <Stack.Navigator>
-            {!isSignedIn ? (
+            {isSignedIn ? (
                 <>
                     <Stack.Screen name="Home" options={{ headerShown: false }} component={TabNav} />
                     <Stack.Screen name="Tweet" options={{ headerShown: false }} component={TweetScreen} />
@@ -20,8 +21,9 @@ export default function StackNav() {
                 </>
             ) : (
                 <>
-                    <Stack.Screen name="Welcome" options={{ title: 'X' }} component={WelcomeScreen} />
+                    <Stack.Screen name="Welcome" options={{ title: 'XX' }} component={WelcomeScreen} />
                     <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Register" component={RegisterScreen} />
                 </>
             )}
         </Stack.Navigator>

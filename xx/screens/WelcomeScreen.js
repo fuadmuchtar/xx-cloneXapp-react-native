@@ -9,12 +9,12 @@ export default function WelcomeScreen() {
                 <Text style={{ fontSize: 30, textAlign: "center" }}>See what's happening in the world right now.</Text>
             </View>
             <View style={{ flex: 1 }}>
-                <TouchableOpacity onPress={() => { navigate('Login') }}>
-                    <Text style={styles.button}>Login</Text>
+                <TouchableOpacity style={styles.button} onPress={() => { navigate('Login') }}>
+                    <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
-                <Text style={{ textAlign: "center" }}>or</Text>
-                <TouchableOpacity>
-                    <Text style={styles.button}>Register</Text>
+                <Text style={{ textAlign: "center", margin: 8 }}>or</Text>
+                <TouchableOpacity style={styles.button} onPress={() => { navigate('Register') }}>
+                    <Text style={styles.buttonText}>Register</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -28,11 +28,15 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
     button: {
-        fontSize: 20,
-        textAlign: "center",
-        backgroundColor: "black",
-        color: "#fff",
-        padding: 15,
-        borderRadius: 999,
-    }
+        backgroundColor: '#000',
+        borderRadius: 30,
+        paddingVertical: 15,
+        alignItems: 'center',
+        // marginBottom: 20,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 })
