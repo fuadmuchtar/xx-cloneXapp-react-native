@@ -1,23 +1,71 @@
+import { gql, useMutation } from "@apollo/client";
 import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useContext, useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AuthContext } from "../contexts/AuthContext";
+import { save } from "../helpers/secureStore";
+
+const CHECKUSER = gql`
+mutation Mutation($input: String) {
+  checkUser(input: $input)
+}
+`
+const LOGIN = gql`
+mutation Mutation($email: String, $password: String) {
+  login(email: $email, password: $password) {
+    accessToken
+  }
+}
+`
 
 export default function LoginScreen() {
     const [emailUsername, setEmailUsername] = useState("")
     const [password, setPassword] = useState("")
     const [isTrue, setIsTrue] = useState(false)
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const { setIsSignedIn } = useContext(AuthContext)
+    const [doCheckUser, { loading }] = useMutation(CHECKUSER);
+    const [doLogin, { loading: loginLoading }] = useMutation(LOGIN);
 
     const { navigate } = useNavigation()
 
     const handleUser = async () => {
-        setIsTrue(true)
+        try {
+            const response = await doCheckUser({
+                variables: {
+                    input: emailUsername,
+                },
+            });
+            if (!response.data.checkUser) {
+                Alert.alert("Sorry, we couldn't find your account");
+                return;
+            }
+            setIsTrue(true)
+        } catch (error) {
+            Alert.alert(error.message);
+        }
     }
 
     const handleLogin = async () => {
-        console.log("Login")
+        try {
+            const response = await doLogin({
+                variables: {
+                    email: emailUsername,
+                    password,
+                },
+            });
+            Alert.alert("Login Success!")
+            setEmailUsername("")
+            setPassword("")
 
+            const token = response.data?.login.accessToken
+            if (!token) throw new Error("Invalid token client")
+            await save("token", token)
+            setIsSignedIn(true)
+        } catch (error) {
+            Alert.alert(error.message);
+        }
     }
 
     if (!isTrue)

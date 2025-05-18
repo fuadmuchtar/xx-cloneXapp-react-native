@@ -26,7 +26,7 @@ export default function RegisterScreen({ navigation }) {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [doRegister, { loading, error }] = useMutation(REGISTER);
+    const [doRegister, { loading }] = useMutation(REGISTER);
 
     const handleRegister = async () => {
         try {
