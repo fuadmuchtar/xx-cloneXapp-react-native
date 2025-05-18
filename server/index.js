@@ -9,11 +9,12 @@ const UserModel = require('./models/UserModel');
 
 const server = new ApolloServer({
     typeDefs: [userTypeDefs, postsTypeDefs, followTypeDefs],
-    resolvers: [userResolvers, postsResolvers, followResolvers]
+    resolvers: [userResolvers, postsResolvers, followResolvers],
+    introspection: true,
 })
 
 startStandaloneServer(server, {
-    listen: { port: 3000 },
+    listen: { port: process.env.PORT || 3000 },
     context: ({ req }) => {
         return {
             auth: async () => {
