@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
@@ -8,12 +9,15 @@ export default function LoginScreen() {
     const [isTrue, setIsTrue] = useState(false)
     const [passwordVisible, setPasswordVisible] = useState(false);
 
+    const { navigate } = useNavigation()
+
     const handleUser = async () => {
         setIsTrue(true)
     }
 
     const handleLogin = async () => {
         console.log("Login")
+
     }
 
     if (!isTrue)
