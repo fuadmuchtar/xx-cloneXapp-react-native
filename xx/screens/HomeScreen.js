@@ -1,7 +1,6 @@
 import { ScrollView, Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { useState } from 'react';
-import TweetScreen from "./TweetScreen";
+// import { useState } from 'react';
 import { useNavigation } from "@react-navigation/native";
 import Tweet from "../components/Tweet";
 import { gql, useQuery } from "@apollo/client";
@@ -10,9 +9,9 @@ const GET_TWEETS = gql`
   query Tweets {
   posts {
     content
-    # tags
-    # imgUrl
-    # authorId
+    tags
+    imgUrl
+    authorId
     comments {
       content
     }
@@ -21,12 +20,12 @@ const GET_TWEETS = gql`
     }
     createdAt
     updatedAt
-    # commentsUser {
-    #   name
-    # }
-    # likesUser {
-    #   name
-    # }
+    commentsUser {
+      name
+    }
+    likesUser {
+      name
+    }
     authorDetail {
       name
       username
@@ -41,8 +40,6 @@ export default function HomeScreen() {
     const { data, loading, error } = useQuery(GET_TWEETS);
 
     const { navigate } = useNavigation();
-
-    // console.log(data?.posts[1].comments)
 
 
     // Function to navigate to profile with user data
@@ -61,9 +58,13 @@ export default function HomeScreen() {
     };
 
     if (loading) {
-        return <Text>Loading...</Text>;
+        return (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <Text>Loading...</Text>
+                {/* <Text style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>Loading...</Text>; */}
+            </View>
+        )
     }
-    console.log("data", data);
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -77,22 +78,20 @@ export default function HomeScreen() {
                 <Feather name="settings" size={22} color="#1DA1F2" />
             </View>
 
-            <ScrollView
+            {/* <ScrollView
                 style={styles.feed}
                 contentContainerStyle={{ paddingBottom: 80 }}
             >
                 {data?.posts.map((tweet, idx) => (
                     <Tweet key={idx} tweet={tweet} />
                 ))}
-            </ScrollView>
+            </ScrollView> */}
 
             <View style={styles.bottomButtonContainer}>
                 <TouchableOpacity style={styles.tweetButton} onPress={() => navigate("Tweet")}>
                     <AntDesign name="plus" size={24} color="white" />
                 </TouchableOpacity>
             </View>
-
-
         </View>
     );
 }

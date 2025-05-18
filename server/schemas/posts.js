@@ -19,6 +19,7 @@ const typeDefs = `#graphql
 
     type userDetail {
         name: String
+        username: String
     }
 
     type Comments {

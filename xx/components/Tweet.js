@@ -5,12 +5,12 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export default function Tweet({ tweet }) {
     const { navigate } = useNavigation();
 
-    const navigateToProfile = (userData) => {
-        navigate("Profile");
+    const navigateToProfile = (userName) => {
+        navigate("Profile", { username: userName });
     };
 
-    const navigateToTweetDetail = (tweet) => {
-        navigate("TweetDetail", { tweet });
+    const navigateToTweetDetail = (tweetId) => {
+        navigate("TweetDetail", { _id: tweetId });
     };
 
     return (

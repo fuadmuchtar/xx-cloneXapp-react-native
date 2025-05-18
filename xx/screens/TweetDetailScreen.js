@@ -8,76 +8,84 @@ import {
   ScrollView,
   TextInput,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import getDayDifferenceFromNow from '../helpers/getDay';
+
+const GET_TWEETSBYID = gql`
+query Query($id: ID!) {
+  postById(_id: $id) {
+    _id
+    content
+    tags
+    imgUrl
+    authorId
+    comments {
+      content
+      username
+      createdAt
+      updatedAt
+    }
+    likes {
+      username
+      createdAt
+      updatedAt
+    }
+    createdAt
+    updatedAt
+    commentsUser {
+      name
+      username
+    }
+    likesUser {
+      name
+      username
+    }
+    authorDetail {
+      name
+      username
+    }
+  }
+}
+`
+const COMMENT_TWEET = gql`
+mutation Mutation($id: ID!, $content: String!) {
+  commentPost(_id: $id, content: $content)
+}
+`
 
 export default function TweetDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-
-  // Get tweet data from route params, or use fallback data
-  const tweet = route.params?.tweet || {
-    id: '1',
-    name: 'John Doe',
-    handle: '@johndoe',
-    time: '2h',
-    date: 'May 18 · 2023',
-    content: 'Just learned React Native, and it\'s amazing! The component-based architecture makes it so intuitive to build mobile apps. #reactnative #javascript #mobiledev',
-    likes: 25,
-    retweets: 5,
-    comments: 3,
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-  };
+  const { _id } = route.params;
+  const { data, refetch, loading } = useQuery(GET_TWEETSBYID, {
+    variables: { id: _id },
+  })
+  const [addComment, { loading: loadingComment }] = useMutation(COMMENT_TWEET)
 
   // State for new reply
   const [replyText, setReplyText] = useState('');
 
-  // Sample replies
-  const [replies, setReplies] = useState([
-    {
-      id: 'r1',
-      name: 'Jane Smith',
-      handle: '@janesmith',
-      time: '1h',
-      content: 'React Native is definitely a game changer! Are you using Expo or bare workflow?',
-      likes: 3,
-      retweets: 0,
-      comments: 1,
-      avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    },
-    {
-      id: 'r2',
-      name: 'Tech Enthusiast',
-      handle: '@techlover',
-      time: '30m',
-      content: 'Try adding Redux for state management. It works great with React Native!',
-      likes: 2,
-      retweets: 0,
-      comments: 0,
-      avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-    },
-  ]);
-
   // Function to add a new reply
-  const handleAddReply = () => {
-    if (replyText.trim() === '') return;
-
-    const newReply = {
-      id: `r${replies.length + 1}`,
-      name: 'Me',
-      handle: '@myhandle',
-      time: 'Just now',
-      content: replyText,
-      likes: 0,
-      retweets: 0,
-      comments: 0,
-      avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    };
-
-    setReplies([newReply, ...replies]);
-    setReplyText('');
+  const handleAddReply = async () => {
+    try {
+      const result = await addComment({
+        variables: {
+          id: _id,
+          content: replyText,
+        },
+      });
+      await refetch();
+      setReplyText('');
+      keyboard.dismiss();
+      Alert.alert("Success", "Reply added successfully");
+    } catch (error) {
+      Alert.alert("Error", "Failed to add reply");
+    }
   };
 
   // Function to navigate to a user's profile
@@ -85,13 +93,18 @@ export default function TweetDetailScreen() {
     navigation.navigate("Profile", { userData });
   };
 
+  const postById = data?.postById;
+
+  if (loading || loadingComment) {
+    return <Text style={{ flex: 1 }}>Loading...</Text>;
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={80}
     >
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="black" />
@@ -107,25 +120,26 @@ export default function TweetDetailScreen() {
             <TouchableOpacity
               style={styles.avatarContainer}
               onPress={() => navigateToProfile({
-                name: tweet.name,
-                handle: tweet.handle,
-                avatar: tweet.avatar
+                // name: tweet.name,
+                // handle: tweet.handle,
+                // avatar: tweet.avatar
               })}
             >
-              <Image source={{ uri: tweet.avatar }} style={styles.avatar} />
+              <Image source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }} style={styles.avatar} />
             </TouchableOpacity>
 
             <View style={styles.userInfo}>
               <TouchableOpacity
                 onPress={() => navigateToProfile({
-                  name: tweet.name,
-                  handle: tweet.handle,
-                  avatar: tweet.avatar
+                  // name: tweet.name,
+                  // handle: tweet.handle,
+                  // avatar: tweet.avatar
                 })}
               >
-                <Text style={styles.userName}>{tweet.name}</Text>
+                <Text style={styles.userName}>{postById.authorDetail.name}</Text>
+                <Text>@{postById.authorDetail.username}</Text>
               </TouchableOpacity>
-              <Text style={styles.userHandle}>{tweet.handle}</Text>
+              {/* <Text style={styles.userHandle}>{tweet.handle}</Text> */}
             </View>
 
             <TouchableOpacity style={styles.moreButton}>
@@ -134,9 +148,9 @@ export default function TweetDetailScreen() {
           </View>
 
           <View style={styles.tweetContent}>
-            <Text style={styles.tweetText}>{tweet.content}</Text>
+            <Text style={styles.tweetText}>{postById.content}</Text>
 
-            <Text style={styles.tweetTime}>{tweet.time} · {tweet.date}</Text>
+            {/* <Text style={styles.tweetTime}>{getDayDifferenceFromNow(postById.createdAt)}</Text> */}
           </View>
         </View>
 
@@ -168,8 +182,8 @@ export default function TweetDetailScreen() {
 
         {/* Replies */}
         <View style={styles.repliesContainer}>
-          {replies.map(reply => (
-            <View key={reply.id} style={styles.replyItem}>
+          {postById.comments.map((reply, idx) => (
+            <View key={idx} style={styles.replyItem}>
               <TouchableOpacity
                 onPress={() => navigateToProfile({
                   name: reply.name,
@@ -177,7 +191,7 @@ export default function TweetDetailScreen() {
                   avatar: reply.avatar
                 })}
               >
-                <Image source={{ uri: reply.avatar }} style={styles.replyItemAvatar} />
+                <Image source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }} style={styles.replyItemAvatar} />
               </TouchableOpacity>
 
               <View style={styles.replyContent}>
@@ -189,31 +203,17 @@ export default function TweetDetailScreen() {
                       avatar: reply.avatar
                     })}
                   >
-                    <Text style={styles.replyName}>{reply.name}</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                      <Text style={styles.replyName}>{postById.commentsUser[idx].name}</Text>
+                      <Text style={{ fontWeight: "normal" }}>@{postById.commentsUser[idx].username}</Text>
+                    </View>
                   </TouchableOpacity>
-                  <Text style={styles.replyHandle}>{reply.handle}</Text>
-                  <Text style={styles.replyTime}>· {reply.time}</Text>
+                  {/* <Text style={styles.replyHandle}>{getDayDifferenceFromNow()}</Text> */}
+                  {/* <Text style={styles.replyTime}>· {reply.time}</Text> */}
                 </View>
 
                 <Text style={styles.replyText}>{reply.content}</Text>
 
-                <View style={styles.replyActions}>
-                  <TouchableOpacity style={styles.replyAction}>
-                    <FontAwesome name="comment-o" size={15} color="#657786" />
-                    <Text style={styles.actionCount}>{reply.comments}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.replyAction}>
-                    <AntDesign name="retweet" size={15} color="#657786" />
-                    <Text style={styles.actionCount}>{reply.retweets}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.replyAction}>
-                    <AntDesign name="hearto" size={15} color="#657786" />
-                    <Text style={styles.actionCount}>{reply.likes}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.replyAction}>
-                    <Feather name="share" size={15} color="#657786" />
-                  </TouchableOpacity>
-                </View>
               </View>
             </View>
           ))}
