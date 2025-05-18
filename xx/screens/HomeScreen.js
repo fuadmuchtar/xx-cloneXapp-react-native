@@ -10,25 +10,26 @@ const GET_TWEETS = gql`
   query Tweets {
   posts {
     content
-    tags
-    imgUrl
-    authorId
+    # tags
+    # imgUrl
+    # authorId
     comments {
-      username
+      content
     }
     likes {
-      username
+        username
     }
     createdAt
     updatedAt
-    commentsUser {
-      name
-    }
-    likesUser {
-      name
-    }
+    # commentsUser {
+    #   name
+    # }
+    # likesUser {
+    #   name
+    # }
     authorDetail {
       name
+      username
     }
     _id
   }
@@ -39,8 +40,9 @@ const GET_TWEETS = gql`
 export default function HomeScreen() {
     const { data, loading, error } = useQuery(GET_TWEETS);
 
-    console.log("data", data);
     const { navigate } = useNavigation();
+
+    // console.log(data?.posts[1].comments)
 
 
     // Function to navigate to profile with user data
@@ -58,6 +60,10 @@ export default function HomeScreen() {
         avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
     };
 
+    if (loading) {
+        return <Text>Loading...</Text>;
+    }
+    console.log("data", data);
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -75,8 +81,8 @@ export default function HomeScreen() {
                 style={styles.feed}
                 contentContainerStyle={{ paddingBottom: 80 }}
             >
-                {tweets.map(tweet => (
-                    <Tweet key={tweet.id} tweet={tweet} />
+                {data?.posts.map((tweet, idx) => (
+                    <Tweet key={idx} tweet={tweet} />
                 ))}
             </ScrollView>
 

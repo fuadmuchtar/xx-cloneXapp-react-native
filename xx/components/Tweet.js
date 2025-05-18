@@ -5,54 +5,49 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export default function Tweet({ tweet }) {
     const { navigate } = useNavigation();
 
-    // Navigate to profile
     const navigateToProfile = (userData) => {
         navigate("Profile");
-        console.log('userData', userData);
     };
 
-    // Navigate to tweet detail screen
     const navigateToTweetDetail = (tweet) => {
         navigate("TweetDetail", { tweet });
     };
 
     return (
-        <View key={tweet.id} style={styles.tweet}>
-            <TouchableOpacity onPress={() => navigateToProfile(tweet.id)}>
+        <View key={tweet.id} style={styles.tweets}>
+            <TouchableOpacity onPress={() => navigateToProfile(tweet.authorDetail.username)}>
                 <Image
-                    source={{ uri: tweet.avatar }}
+                    source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }}
                     style={styles.avatar}
                 />
             </TouchableOpacity>
 
             <View style={styles.tweetContent}>
-                {/* Make the main tweet content clickable */}
                 <TouchableOpacity
                     style={styles.tweetContentTouchable}
-                    onPress={() => navigateToTweetDetail(tweet)}
+                    onPress={() => navigateToTweetDetail(tweet._id)}
                     activeOpacity={0.7}
                 >
                     <View style={styles.tweetHeader}>
-                        <Text style={styles.name}>{tweet.name}</Text>
-                        <Text style={styles.handle}>{tweet.handle}</Text>
-                        <Text style={styles.time}>· {tweet.time}</Text>
+                        <Text style={styles.name}>{tweet.authorDetail.name}</Text>
+                        <Text style={styles.handle}>@{tweet.authorDetail.username}</Text>
+                        <Text style={styles.time}>· {new Date(tweet.createdAt).toDateString()}</Text>
                     </View>
                     <Text style={styles.tweetText}>{tweet.content}</Text>
                 </TouchableOpacity>
 
-                {/* Keep the action buttons separately so they don't trigger navigation */}
                 <View style={styles.tweetActions}>
                     <TouchableOpacity style={styles.action}>
                         <FontAwesome name="comment-o" size={18} color="#657786" />
-                        <Text style={styles.actionText}>{tweet.comments}</Text>
+                        <Text style={styles.actionText}>{tweet.comments?.length || 0}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.action}>
                         <AntDesign name="retweet" size={18} color="#657786" />
-                        <Text style={styles.actionText}>{tweet.retweets}</Text>
+                        <Text style={styles.actionText}>{tweet.retweets || 0}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.action}>
                         <AntDesign name="hearto" size={18} color="#657786" />
-                        <Text style={styles.actionText}>{tweet.likes}</Text>
+                        <Text style={styles.actionText}>{tweet.likes?.length || 0}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.action}>
                         <Feather name="share" size={18} color="#657786" />
@@ -64,7 +59,7 @@ export default function Tweet({ tweet }) {
 }
 
 const styles = StyleSheet.create({
-    tweet: {
+    tweets: {
         flexDirection: 'row',
         paddingHorizontal: 15,
         paddingVertical: 15,

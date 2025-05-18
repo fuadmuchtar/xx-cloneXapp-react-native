@@ -21,7 +21,6 @@ export default function TabNav() {
                         iconName = 'user';
                     }
 
-                    // Return the icon component
                     return <Feather name={iconName} size={size} color={focused ? "#1DA1F2" : "#657786"} />;
                 },
                 tabBarShowLabel: false,
