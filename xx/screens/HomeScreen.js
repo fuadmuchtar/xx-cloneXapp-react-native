@@ -4,44 +4,44 @@ import { useState } from 'react';
 import TweetScreen from "./TweetScreen";
 import { useNavigation } from "@react-navigation/native";
 import Tweet from "../components/Tweet";
+import { gql, useQuery } from "@apollo/client";
+
+const GET_TWEETS = gql`
+  query Tweets {
+  posts {
+    content
+    tags
+    imgUrl
+    authorId
+    comments {
+      username
+    }
+    likes {
+      username
+    }
+    createdAt
+    updatedAt
+    commentsUser {
+      name
+    }
+    likesUser {
+      name
+    }
+    authorDetail {
+      name
+    }
+    _id
+  }
+}
+
+`;
 
 export default function HomeScreen() {
-    const [tweets, setTweets] = useState([
-        {
-            id: '1',
-            name: 'Fuad Ganteng banget',
-            handle: '@johndoe',
-            time: '2h',
-            content: 'Just learned React Native, and it\'s amazing! #reactnative #javascript',
-            likes: 25,
-            retweets: 5,
-            comments: 3,
-            avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-        },
-        {
-            id: '2',
-            name: 'Ladi Cantik Syekaliiiii',
-            handle: '@janesmith',
-            time: '5h',
-            content: 'Beautiful day for coding outside! Check out this view while I work on my new app.',
-            likes: 152,
-            retweets: 23,
-            comments: 12,
-            avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-        },
-        {
-            id: '3',
-            name: 'Tech News',
-            handle: '@technews',
-            time: '1d',
-            content: 'Breaking: New framework for mobile development announced today. Will it replace React Native?',
-            likes: 438,
-            retweets: 126,
-            comments: 54,
-            avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
-        },
-    ]);
+    const { data, loading, error } = useQuery(GET_TWEETS);
+
+    console.log("data", data);
     const { navigate } = useNavigation();
+
 
     // Function to navigate to profile with user data
     // const navigateToProfile = (userData) => {

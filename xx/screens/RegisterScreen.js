@@ -8,9 +8,17 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
-    Image
+    Image,
+    Alert
 } from 'react-native';
-import { Feather, AntDesign } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
+import { gql, useMutation } from '@apollo/client';
+
+const REGISTER = gql`
+mutation Mutation($name: String, $username: String, $email: String, $password: String) {
+  register(name: $name, username: $username, email: $email, password: $password)
+}
+`
 export default function RegisterScreen({ navigation }) {
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
@@ -18,11 +26,29 @@ export default function RegisterScreen({ navigation }) {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [doRegister, { loading, error }] = useMutation(REGISTER);
 
-    const handleRegister = () => {
-        console.log('Registration data:', { name, username, email, password });
-        // Navigate to next screen or handle registration
-        // }
+    const handleRegister = async () => {
+        try {
+            const response = await doRegister({
+                variables: {
+                    name,
+                    username,
+                    email,
+                    password,
+                },
+            });
+
+            Alert.alert('Registration Success!')
+            setName('');
+            setUsername('');
+            setEmail('');
+            setPassword('');
+            navigation.navigate('Login');
+
+        } catch (error) {
+            Alert.alert(error.message);
+        }
     };
 
     return (

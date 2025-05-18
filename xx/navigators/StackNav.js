@@ -6,10 +6,12 @@ import TweetScreen from "../screens/TweetScreen"
 import ProfileScreen from "../screens/ProfileScreen"
 import TweetDetailScreen from "../screens/TweetDetailScreen"
 import RegisterScreen from "../screens/RegisterScreen"
+import { AuthContext } from "../contexts/AuthContext"
+import { useContext } from "react"
 
 const Stack = createStackNavigator()
 export default function StackNav() {
-    const { isSignedIn } = false
+    const { isSignedIn } = useContext(AuthContext)
     return (
         <Stack.Navigator>
             {isSignedIn ? (
