@@ -12,7 +12,7 @@ import {
   Alert
 } from 'react-native';
 import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import getDayDifferenceFromNow from '../helpers/getDay';
 
@@ -58,14 +58,16 @@ mutation Mutation($id: ID!, $content: String!) {
 }
 `
 
-export default function TweetDetailScreen() {
-  const navigation = useNavigation();
-  const route = useRoute();
+export default function TweetDetailScreen({ route }) {
   const { _id } = route.params;
-  const { data, refetch, loading } = useQuery(GET_TWEETSBYID, {
+  const navigation = useNavigation();
+  const { data, loading, error, refetch } = useQuery(GET_TWEETSBYID, {
     variables: { id: _id },
   })
+
   const [addComment, { loading: loadingComment }] = useMutation(COMMENT_TWEET)
+
+  console.log([data, loading, error]);
 
   // State for new reply
   const [replyText, setReplyText] = useState('');
@@ -93,13 +95,12 @@ export default function TweetDetailScreen() {
     navigation.navigate("Profile", { userData });
   };
 
-  const postById = data?.postById;
-
-  if (loading || loadingComment) {
+  if (loading) {
     return <Text style={{ flex: 1 }}>Loading...</Text>;
   }
 
   return (
+
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -129,17 +130,8 @@ export default function TweetDetailScreen() {
             </TouchableOpacity>
 
             <View style={styles.userInfo}>
-              <TouchableOpacity
-                onPress={() => navigateToProfile({
-                  // name: tweet.name,
-                  // handle: tweet.handle,
-                  // avatar: tweet.avatar
-                })}
-              >
-                <Text style={styles.userName}>{postById.authorDetail.name}</Text>
-                <Text>@{postById.authorDetail.username}</Text>
-              </TouchableOpacity>
-              {/* <Text style={styles.userHandle}>{tweet.handle}</Text> */}
+              <Text style={styles.userName}>{data.postById.authorDetail.name}</Text>
+              <Text>@{data.postById.authorDetail.username}</Text>
             </View>
 
             <TouchableOpacity style={styles.moreButton}>
@@ -148,9 +140,9 @@ export default function TweetDetailScreen() {
           </View>
 
           <View style={styles.tweetContent}>
-            <Text style={styles.tweetText}>{postById.content}</Text>
+            <Text style={styles.tweetText}>{data?.postById.content}</Text>
 
-            {/* <Text style={styles.tweetTime}>{getDayDifferenceFromNow(postById.createdAt)}</Text> */}
+            <Text style={styles.tweetTime}>{getDayDifferenceFromNow(data.postById.createdAt)} days ago</Text>
           </View>
         </View>
 
@@ -182,13 +174,13 @@ export default function TweetDetailScreen() {
 
         {/* Replies */}
         <View style={styles.repliesContainer}>
-          {postById.comments.map((reply, idx) => (
+          {data?.postById.comments.map((reply, idx) => (
             <View key={idx} style={styles.replyItem}>
               <TouchableOpacity
                 onPress={() => navigateToProfile({
-                  name: reply.name,
-                  handle: reply.handle,
-                  avatar: reply.avatar
+                  // name: reply.name,
+                  // handle: reply.handle,
+                  // avatar: reply.avatar
                 })}
               >
                 <Image source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }} style={styles.replyItemAvatar} />
@@ -198,17 +190,17 @@ export default function TweetDetailScreen() {
                 <View style={styles.replyHeader}>
                   <TouchableOpacity
                     onPress={() => navigateToProfile({
-                      name: reply.name,
-                      handle: reply.handle,
-                      avatar: reply.avatar
+                      // name: reply.name,
+                      // handle: reply.handle,
+                      // avatar: reply.avatar
                     })}
                   >
                     <View style={{ flexDirection: 'row' }}>
-                      <Text style={styles.replyName}>{postById.commentsUser[idx].name}</Text>
-                      <Text style={{ fontWeight: "normal" }}>@{postById.commentsUser[idx].username}</Text>
+                      <Text style={styles.replyName}>@{reply.username}</Text>
+                      {/* <Text style={{ fontWeight: "normal" }}>@{postById.commentsUser[idx].username}</Text> */}
                     </View>
                   </TouchableOpacity>
-                  {/* <Text style={styles.replyHandle}>{getDayDifferenceFromNow()}</Text> */}
+                  <Text style={styles.replyHandle}>{getDayDifferenceFromNow(reply.updatedAt)} days ago</Text>
                   {/* <Text style={styles.replyTime}>· {reply.time}</Text> */}
                 </View>
 

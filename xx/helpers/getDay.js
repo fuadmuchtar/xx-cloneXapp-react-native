@@ -1,6 +1,6 @@
 function getDayDifferenceFromNow(pastDate) {
     let now = new Date();
-    let then = new Date(pastDate); // Ganti dengan tanggal yang ingin dibandingkan
+    let then = new Date(Number(pastDate)); // Ganti dengan tanggal yang ingin dibandingkan
 
     // Hitung selisih dalam milidetik
     const diffInMs = now - then;

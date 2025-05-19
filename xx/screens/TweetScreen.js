@@ -7,22 +7,24 @@ import {
     Image,
     StyleSheet,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Alert
 } from 'react-native';
 import { Feather, FontAwesome, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { gql, useMutation } from '@apollo/client';
+
+const TWEET = gql`
+mutation Mutation($content: String!, $tags: [String], $imgUrl: String) {
+  addPost(content: $content, tags: $tags, imgUrl: $imgUrl)
+}
+`;
 
 export default function TweetScreen({ navigation }) {
     const [tweetContent, setTweetContent] = useState('');
     const [charCount, setCharCount] = useState(0);
     const MAX_CHARS = 280;
     const inputRef = useRef(null);
-
-    // User data (would normally come from auth context/state)
-    const user = {
-        name: 'John Doe',
-        handle: '@johndoe',
-        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-    };
+    const [doTweet, { loading }] = useMutation(TWEET);
 
     // Focus input when component mounts
     React.useEffect(() => {
@@ -36,10 +38,22 @@ export default function TweetScreen({ navigation }) {
         setCharCount(text.length);
     };
 
-    const handlePostTweet = () => {
-        // In a real app, you would dispatch an action to post the tweet
-        console.log('Posting tweet:', tweetContent);
-        navigation?.goBack();
+    const handlePostTweet = async () => {
+        try {
+            const response = await doTweet({
+                variables: {
+                    content: tweetContent,
+                    tags: [],
+                    imgUrl: null,
+                },
+            });
+            Alert.alert("Tweet posted successfully!");
+            setTweetContent('');
+            setCharCount(0);
+            navigation?.goBack();
+        } catch (error) {
+            Alert.alert(error.message);
+        }
     };
 
     const remainingChars = MAX_CHARS - charCount;
@@ -79,7 +93,7 @@ export default function TweetScreen({ navigation }) {
 
             {/* Composition Area */}
             <View style={styles.compositionArea}>
-                <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                <Image source={{ uri: 'https://randomuser.me/api/portraits/men/' + Math.floor(Math.random() * 100) + '.jpg' }} style={styles.avatar} />
 
                 <View style={styles.inputContainer}>
                     <TextInput

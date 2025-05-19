@@ -1,9 +1,9 @@
 import { ScrollView, Text, View, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { Feather, AntDesign, FontAwesome } from '@expo/vector-icons';
-// import { useState } from 'react';
+import { Feather, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import Tweet from "../components/Tweet";
 import { gql, useQuery } from "@apollo/client";
+import { useEffect } from "react";
 
 const GET_TWEETS = gql`
   query Tweets {
@@ -37,7 +37,7 @@ const GET_TWEETS = gql`
 `;
 
 export default function HomeScreen() {
-    const { data, loading, error } = useQuery(GET_TWEETS);
+    const { data, loading, error, refetch } = useQuery(GET_TWEETS);
 
     const { navigate } = useNavigation();
 
@@ -57,6 +57,10 @@ export default function HomeScreen() {
         avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
     };
 
+    useEffect(() => {
+        refetch();
+    }, []);
+
     if (loading) {
         return (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -75,20 +79,24 @@ export default function HomeScreen() {
                     />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>XX</Text>
-                <Feather name="settings" size={22} color="#1DA1F2" />
+                <TouchableOpacity onPress={() => navigate("Logout")}>
+                    <Feather name="settings" size={22} color="#1DA1F2" />
+                </TouchableOpacity>
             </View>
 
-            {/* <ScrollView
+            <ScrollView
                 style={styles.feed}
                 contentContainerStyle={{ paddingBottom: 80 }}
             >
                 {data?.posts.map((tweet, idx) => (
                     <Tweet key={idx} tweet={tweet} />
                 ))}
-            </ScrollView> */}
+            </ScrollView>
 
             <View style={styles.bottomButtonContainer}>
-                <TouchableOpacity style={styles.tweetButton} onPress={() => navigate("Tweet")}>
+                <TouchableOpacity style={styles.tweetButton} onPress={() => navigate("Tweet", {
+                    refetchData: refetch
+                })}>
                     <AntDesign name="plus" size={24} color="white" />
                 </TouchableOpacity>
             </View>

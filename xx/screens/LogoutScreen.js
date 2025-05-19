@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     View,
     Text,
@@ -10,10 +10,14 @@ import {
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { deleteValueFor } from '../helpers/secureStore';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function LogoutScreen() {
     const navigation = useNavigation();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const { setIsSignedIn } = useContext(AuthContext)
+
 
     // Mock user data - in a real app this would come from context/state
     const user = {
@@ -23,27 +27,8 @@ export default function LogoutScreen() {
     };
 
     const handleLogout = async () => {
-        setIsLoggingOut(true);
-
-        try {
-            // Simulate API call to logout
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // In a real app, you would:
-            // 1. Make an API call to invalidate tokens
-            // 2. Clear local storage or async storage
-            // 3. Clear authentication context/state
-
-            // Navigate to login screen
-            navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-            });
-        } catch (error) {
-            console.error('Logout failed:', error);
-            Alert.alert('Logout Failed', 'An error occurred while trying to log out.');
-            setIsLoggingOut(false);
-        }
+        await deleteValueFor('token');
+        setIsSignedIn(false);
     };
 
     const cancelLogout = () => {

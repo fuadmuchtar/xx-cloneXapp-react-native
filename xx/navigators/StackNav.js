@@ -8,6 +8,7 @@ import TweetDetailScreen from "../screens/TweetDetailScreen"
 import RegisterScreen from "../screens/RegisterScreen"
 import { AuthContext } from "../contexts/AuthContext"
 import { useContext } from "react"
+import LogoutScreen from "../screens/LogoutScreen"
 
 const Stack = createStackNavigator()
 export default function StackNav() {
@@ -20,6 +21,7 @@ export default function StackNav() {
                     <Stack.Screen name="Tweet" options={{ headerShown: false }} component={TweetScreen} />
                     <Stack.Screen name="Profile" options={{ headerShown: false }} component={ProfileScreen} />
                     <Stack.Screen name="TweetDetail" options={{ headerShown: false }} component={TweetDetailScreen} />
+                    <Stack.Screen name="Logout" options={{ headerShown: false }} component={LogoutScreen} />
                 </>
             ) : (
                 <>
